@@ -1,0 +1,119 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Поиск пользователей";
+}
+
+<div>Поиск пользователей</div>
+
+<div>
+    <label for="userId">Id пользователя</label>
+    <input id="userId" type="text">
+</div>
+<div>
+    <label for="userName">Имя пользователя</label>
+    <input id="userName" type="text">
+</div>
+<div>
+    <label for="onlyAdmins">Только админы?</label>
+    <input id="onlyAdmins" type="checkbox">
+</div>
+
+<button id="SearchUser">Поиск</button>
+
+<div id="tableContainer"></div>
+
+<script>
+    let userId = document.getElementById('userId');
+    let userName = document.getElementById('userName');
+    let onlyAdmins = document.getElementById('onlyAdmins');
+
+    document.getElementById('SearchUser').addEventListener('click', () => {
+        fetch('/api/users/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(getSearchViewModel())
+        })
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(users => {
+            if (!users)
+                return;
+
+            RenderTable(users);
+        })
+    });
+
+    function getSearchViewModel() {
+        let search = {};
+
+        if (userId.value !== '')
+            search['Id'] = userId.value;
+        
+        if (userName.value !== '')
+            search['Name'] = userName.value;
+
+        if (onlyAdmins.checked)
+            search['IsOnlyAdmins'] = true;
+
+        return search;
+    }
+
+    function RenderTable(users) {
+        let container = document.getElementById('tableContainer');
+        let table = getTableHead();
+        let body = document.createElement('tbody');
+        let lastTable = container.firstChild;
+        table.append(body);
+
+        for (let user of users) {
+            body.append(getRow(user));
+        }
+
+        if (lastTable)
+            lastTable.remove();
+
+        container.append(table);
+    }
+
+    function getTableHead() {
+        let table = document.createElement('table');
+        let head = document.createElement('thead');
+        let tr = document.createElement('tr');
+        let id = document.createElement('th');
+        let name = document.createElement('th');
+
+        id.innerText = 'id';
+        name.innerText = 'Имя пользователя';
+
+        table.append(head);
+        head.append(tr);
+        tr.append(id);
+        tr.append(name);
+
+        return table;
+    }
+
+    function getRow (user) {
+        let tr = document.createElement('tr');
+        let id = document.createElement('th');
+        let name = document.createElement('th');
+        let linkTh = document.createElement('th');
+        let link = document.createElement('a');
+        
+        id.innerText = user.id;
+        name.innerText = user.name;
+        link.href = `/users/${user.id}`;
+        link.innerText = 'Изменить';
+
+        linkTh.append(link);
+        tr.append(id);
+        tr.append(name);
+        tr.append(linkTh);
+
+        return tr;
+    }
+</script>

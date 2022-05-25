@@ -1,0 +1,28 @@
+@using SpecificationExample.Users.Models
+@model IEnumerable<User>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Список пользователей";
+}
+<div>Список пользователей</div>
+<a href="/users/adduser">Добавить пользователя</a>
+<a href="/users/search">Поиск</a>
+<table>
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>Имя пользователя</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <th>@user.Id</th>
+                <th>@user.Name</th>
+                <th><a href="/users/@user.Id">Изменить</a></th>
+            </tr>
+        }
+    </tbody>
+</table>

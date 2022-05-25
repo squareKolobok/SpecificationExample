@@ -1,0 +1,169 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Поиск задачи";
+}
+
+<div>Поиск задачи</div>
+<div>
+    <label for="taskTitle">Введите название задачи</label>
+    <input id="taskTitle" type="text">
+</div>
+<div>
+    <label for="taskDescription">Введите описание задачи</label>
+    <input id="taskDescription" type="text">
+</div>
+<div>
+    <label for="taskAuthor">Выберите автора задачи</label>
+    <select id="taskAuthor">
+        <option selected value=''>Выберите автора</option>
+    </select>
+</div>
+<div>
+    <label for="taskStatus">Выберите статус задачи</label>
+    <select id="taskStatus">
+        <option selected value=''>Выберите статус</option>
+    </select>
+</div>
+<button id="search">Поиск</button>
+
+<div id="tableContainer"></div>
+
+<script>
+    let taskAuthor = document.getElementById('taskAuthor');
+    let taskStatus = document.getElementById('taskStatus');
+    let taskTitle = document.getElementById('taskTitle');
+    let taskDescription = document.getElementById('taskDescription');
+
+    fetch('/api/Users')
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(users => {
+            if (!users)
+                return;
+            
+            for (let user of users){
+                let option = document.createElement('option');
+                option.value = user.id;
+                option.innerText = user.name;
+                taskAuthor.append(option);
+            }
+        });
+    
+    fetch('/api/Statuses')
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(statuses => {
+            if (!statuses)
+                return;
+            
+            for (let status of statuses){
+                let option = document.createElement('option');
+                option.value = status.id;
+                option.innerText = status.name;
+                taskStatus.append(option);
+            }
+        });
+
+    document.getElementById('search').addEventListener('click', () => {
+        fetch('/api/Tasks/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(getSearchViewModel())
+        })
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(tasks => {
+            if (!tasks)
+                return;
+            
+            RenderTable(tasks);
+        });
+    });
+
+    function getSearchViewModel() {
+        let search = {};
+
+        if (taskTitle.value !== '')
+            search['Title'] = taskTitle.value;
+        
+        if (taskDescription.value !== '')
+            search['Description'] = taskDescription.value;
+        
+        if (taskAuthor.value !== '')
+            search['AuthorId'] = taskAuthor.value;
+
+        if (taskStatus.value !== '')
+            search['StatusId'] = taskStatus.value;
+
+        return search;
+    }
+
+    function RenderTable(tasks) {
+        let container = document.getElementById('tableContainer');
+        let table = getTableHead();
+        let body = document.createElement('tbody');
+        let lastTable = container.firstChild;
+        table.append(body);
+
+        for (let task of tasks) {
+            body.append(getRow(task));
+        }
+
+        if (lastTable)
+            lastTable.remove();
+
+        container.append(table);
+    }
+
+    function getTableHead() {
+        let table = document.createElement('table');
+        let head = document.createElement('thead');
+        let tr = document.createElement('tr');
+        let id = document.createElement('th');
+        let title = document.createElement('th');
+        let status = document.createElement('th');
+
+        id.innerText = 'id';
+        title.innerText = 'Название задачи';
+        status.innerText = 'Статус';
+
+        table.append(head);
+        head.append(tr);
+        tr.append(id);
+        tr.append(title);
+        tr.append(status);
+
+        return table;
+    }
+
+    function getRow (task) {
+        let tr = document.createElement('tr');
+        let id = document.createElement('th');
+        let title = document.createElement('th');
+        let status = document.createElement('th');
+        let linkTh = document.createElement('th');
+        let link = document.createElement('a');
+        
+        id.innerText = task.id;
+        title.innerText = task.title;
+        status.innerText = task.status;
+        link.href = `/tasks/${task.id}`;
+        link.innerText = 'Изменить';
+
+        linkTh.append(link);
+        tr.append(id);
+        tr.append(title);
+        tr.append(status);
+        tr.append(linkTh);
+
+        return tr;
+    }
+</script>

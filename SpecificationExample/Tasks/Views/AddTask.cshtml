@@ -1,0 +1,87 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Добавить новую задачу";
+}
+
+<div>Добавить новую задачу</div>
+<div>
+    <label for="taskTitle">Введите название задачи</label>
+    <input id="taskTitle" type="text">
+</div>
+<div>
+    <label for="taskDescription">Введите описание задачи</label>
+    <input id="taskDescription" type="text">
+</div>
+<div>
+    <label for="taskAuthor">Выберите автора задачи</label>
+    <select id="taskAuthor">
+        <option disabled selected>Выберите автора</option>
+    </select>
+</div>
+<div>
+    <label for="taskStatus">Выберите статус задачи</label>
+    <select id="taskStatus">
+        <option disabled selected>Выберите статус</option>
+    </select>
+</div>
+<button id="addTask">Добавить задачу</button>
+
+<script>
+    let author = document.getElementById('taskAuthor');
+    let status = document.getElementById('taskStatus');
+
+    fetch('/api/Users')
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(users => {
+            if (!users)
+                return;
+            
+            for (let user of users){
+                let option = document.createElement('option');
+                option.value = user.id;
+                option.innerText = user.name;
+                author.append(option);
+            }
+        });
+    
+    fetch('/api/Statuses')
+        .then(response => {
+            if (response.ok)
+                return response.json();
+        })
+        .then(statuses => {
+            if (!statuses)
+                return;
+            
+            for (let statusInfo of statuses){
+                let option = document.createElement('option');
+                option.value = statusInfo.id;
+                option.innerText = statusInfo.name;
+                status.append(option);
+            }
+        });
+
+    document.getElementById('addTask').addEventListener('click', () => {
+        let task = {
+            title: document.getElementById('taskTitle').value,
+            description: document.getElementById('taskDescription').value,
+            authorId: author.value,
+            statusId: status.value
+        };
+
+        fetch('/api/Tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(task)
+        })
+        .then(response => {
+            if (response.ok)
+                document.location.href = "/tasks";
+        });
+    });
+</script>

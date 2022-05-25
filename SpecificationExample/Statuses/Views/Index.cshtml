@@ -1,0 +1,26 @@
+@using SpecificationExample.Statuses.Models
+@model IEnumerable<Status>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Список статусов";
+}
+<div>Список статусов</div>
+<a href="/statuses/addstatus">Добавить статус</a>
+<table>
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>Название статуса</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var status in Model)
+        {
+            <tr>
+                <th>@status.Id</th>
+                <th>@status.Name</th>
+            </tr>
+        }
+    </tbody>
+</table>

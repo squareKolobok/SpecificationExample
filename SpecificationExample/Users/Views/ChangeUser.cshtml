@@ -1,0 +1,30 @@
+@using SpecificationExample.Users.Models
+@model User
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Просмотр пользователя";
+}
+
+<div>Просмотр пользователя</div>
+<label for="userName">Имя пользователя</label>
+<input id="userName" type="text" value="@Model.Name">
+<button id="changeUser">Изменить пользователя</button>
+
+<script>
+    document.getElementById("changeUser").addEventListener('click', () => {
+        let userName = document.getElementById("userName").value;
+
+        fetch("/api/Users/@Model.Id", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(userName)
+        })
+        .then(response => {
+            if (response.ok)
+                document.location.href = "/";
+        });
+    });
+</script>

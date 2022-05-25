@@ -1,0 +1,30 @@
+@using SpecificationExample.Tasks.Models
+@model IEnumerable<UserTaskInfo>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Список задач";
+}
+<div>Список задач</div>
+<a href="/tasks/addtask">Добавить задачу</a>
+<a href="/tasks/search">Поиск</a>
+<table>
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>Название задачи</th>
+            <th>Статус</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model)
+        {
+            <tr>
+                <th>@task.Id</th>
+                <th>@task.Title</th>
+                <th>@task.Status</th>
+                <th><a href="/tasks/@task.Id">Изменить</a></th>
+            </tr>
+        }
+    </tbody>
+</table>

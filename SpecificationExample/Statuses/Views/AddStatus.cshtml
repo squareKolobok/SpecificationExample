@@ -1,0 +1,27 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Добавить статус";
+}
+
+<div>Добавить статус</div>
+<label for="statusName">Введите название статуса</label>
+<input id="statusName" type="text">
+<button id="addStatus">Добавить статус</button>
+
+<script>
+    document.getElementById("addStatus").addEventListener('click', () => {
+        let statusName = document.getElementById("statusName").value;
+
+        fetch("/api/Statuses", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(statusName)
+        })
+        .then(response => {
+            if (response.ok)
+                document.location.href = "/statuses";
+        });
+    });
+</script>
